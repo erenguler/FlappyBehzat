@@ -4,9 +4,12 @@ var birds;
 var pipes;
 var foods;
 
+var Sw = screen.width-20;
+var SH = screen.height-50;
+
 function setup() 
 {
-    createCanvas(screen.width,screen.height);
+    createCanvas(Sw,SH);
     NewGame();
 }
 
@@ -135,5 +138,5 @@ function Floor()
 {
     strokeWeight(0);
     fill(255);
-    rect(0, screen.height-10, screen.width, 10);
+    rect(0, SH-10, Sw, 10);
 }
