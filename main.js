@@ -4,7 +4,7 @@ var birds;
 var pipes;
 var foods;
 
-var Sw = screen.width-20;
+var SW = screen.width-20;
 var SH = screen.height-50;
 
 function setup() 
@@ -138,5 +138,5 @@ function Floor()
 {
     strokeWeight(0);
     fill(255);
-    rect(0, SH-10, Sw, 10);
+    rect(0, SH-10, SW, 10);
 }
