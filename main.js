@@ -4,13 +4,17 @@ var pipes;
 var generationCount = 1;
 var highScore = 0;
 var currentScore = 0;
+var slider;
+var counter = 0;
 
-var SW = screen.width;
-var SH = screen.height;
+var SW = screen.width > 1000 ? screen.width : 1000;
+SW = SW * 0.99;
+var SH = window.innerHeight * 0.95;
 
 function setup() 
 {
     createCanvas(SW,SH);
+    slider = createSlider(1, 100, 1);
     NewGame();
 }
 
@@ -22,67 +26,76 @@ function NewGame()
     pipes = [];
     frameCount = 0;
     currentScore = 0;
+    counter = 0;
     pipes.push(new Pipe());
 }
 
 function draw()
 {
-    background(0);
-    frameRate(60);
-
-    if(frameCount % 100 == 0) 
+    for (let z = 0; z < slider.value(); z++) 
     {
-        pipes.push(new Pipe());
-    }
-
-    for (var k = 0; k < pipes.length; k++)
-    {
-        pipes[k].update();
-        pipes[k].show();
-    }
-
-    for (var i = birds.length - 1; i >= 0; i--) 
-    {
-        const nextPipe = this.GetNextPipe(birds[i]);
-        birds[i].update(nextPipe.x,nextPipe.top,nextPipe.bottom);
-
-        birds[i].show();
-
-        if (birds[i].isCrash)
+        counter++;
+        // CALC ALL
+        if(counter % 100 == 0) 
         {
-            deadBirds.push(birds[i]);
-            birds.splice(i,1);
-            continue;
+            pipes.push(new Pipe());
         }
 
-        for(var j = pipes.length - 1; j >= 0; j--)
+        for (var k = 0; k < pipes.length; k++)
         {
-            if (pipes[j].isHit(birds[i])) 
-                birds[i].isCrash = true;
+            pipes[k].update();
+        }
 
-            if(pipes[j].offScreen())
+        for (var i = birds.length - 1; i >= 0; i--) 
+        {
+            const nextPipe = this.GetNextPipe(birds[i]);
+            birds[i].update(nextPipe.x,nextPipe.top,nextPipe.bottom);
+
+            if (birds[i].isCrash)
             {
-                pipes.splice(j,1);
-                birds[i].passedPipeCount++;
+                deadBirds.push(birds[i]);
+                birds.splice(i,1);
+                continue;
+            }
 
-                currentScore = birds[i].passedPipeCount;
+            for(var j = pipes.length - 1; j >= 0; j--)
+            {
+                if (pipes[j].isHit(birds[i])) 
+                    birds[i].isCrash = true;
 
-                if (currentScore > highScore) {
-                    highScore = currentScore;
+                if(pipes[j].offScreen())
+                {
+                    pipes.splice(j,1);
+                    birds[i].passedPipeCount++;
+
+                    currentScore = birds[i].passedPipeCount;
+
+                    if (currentScore > highScore) {
+                        highScore = currentScore;
+                    }
                 }
             }
+
+        }
+
+        if(birds.length <= 0)   
+        {
+            CalcFitness();
+            generationCount++;
+            NewGame();
         }
 
     }
 
-    if(birds.length <= 0)   
-    {
-        CalcFitness();
-        generationCount++;
-        NewGame();
-    }
 
-    GenTexts();
+
+    // DRAW ALL
+    background(0);
+    for (var k = 0; k < pipes.length; k++)
+        pipes[k].show();
+    for (var k = 0; k < birds.length; k++)
+        birds[k].show();
+    GetTexts();
 }
 
 function GenerateBirds() 
@@ -130,12 +143,15 @@ function CalcFitness() {
 }
 
 
-function GenTexts() {
+function GetTexts() {
     stroke(5)
     textStyle(BOLD);
-    textSize(25);
-    textAlign(CENTER);
-    text("Gen:" + generationCount, 40, 25);
-    text("Rec:" + highScore, 40, 50);
-    text("Cur:" + currentScore, 40, 75);
+    textSize(15);
+    textAlign(LEFT);
+    text("Gen:" + generationCount, 0, 15);
+    text("Rec:" + highScore, 0, 30);
+    text("Cur:" + currentScore, 0, 45);
+    text("FPS:" + frameRate().toFixed(2), 0, 60);
+    text("FC:" + frameCount, 0, 75);
+    text("BIRDS:" + birds.length, 0, 90);
 }

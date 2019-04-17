@@ -3,12 +3,12 @@ function Bird(brain)
     this.brain;
     this.img = loadImage('https://i.ibb.co/vswcDLC/behzat.png');
     this.x = 25;
-    this.y = 0;
-    this.size = 50;
+    this.y = 200;
+    this.size = 25;
     this.fitness = 0;
     this.isCrash = false;
     this.gravity = 0.6;
-    this.jumpDistance = -15;
+    this.jumpDistance = -10;
     this.velocity = 0;
     this.score = 0;
     this.passedPipeCount = 0;
@@ -16,19 +16,11 @@ function Bird(brain)
     if (brain) 
     {
         this.brain = brain.copy();
-        this.brain.mutate( function (x) {
-        if (Math.random() < 0.1) 
-        {
-            const offset = Math.random();
-            return x + offset;
-        }
-        return x;
-        });
-
+        this.brain.mutate(0.1);
     } 
     else 
     {
-        this.brain = new NeuralNetwork(5, 5, 1);
+        this.brain = new NeuralNetwork(5, 5, 2);
     }
 
     this.show = function()
@@ -62,10 +54,11 @@ function Bird(brain)
           (spaceStartY / height).toFixed(2),
           (spaceEndY / height).toFixed(2),
           (this.y / height).toFixed(2),
-          (this.velocity / 15).toFixed(2),
+          (this.velocity / this.jumpDistance * -1).toFixed(2),
         ];
         const output = this.brain.predict(inputs);
-        if (output > 0.5) {
+        if (output[0] < output[1]) 
+        {
           this.jump();
         }
     }
